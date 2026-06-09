@@ -1,0 +1,57 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F0FDFA"/>
+  <defs><pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#0D9488" opacity="0.1"/></pattern></defs>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+  <ellipse cx="-40" cy="315" rx="300" ry="400" fill="#0D9488" opacity="0.06"/>
+
+  <!-- Shield + wordmark -->
+  <path d="M 84,178 L 32,158 L 32,88 C 32,78 40,70 50,70 L 118,70 C 128,70 136,78 136,88 L 136,158 Z" fill="#FFFFFF"/>
+  <path d="M 84,178 L 32,158 L 32,88 C 32,78 40,70 50,70 L 118,70 C 128,70 136,78 136,88 L 136,158 Z" fill="none" stroke="#0D9488" stroke-width="1.5"/>
+  <text x="84" y="126" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="30" font-weight="700" fill="#0D9488" text-anchor="middle">&gt;_</text>
+  <circle cx="72" cy="152" r="5" fill="#0D9488"/><circle cx="84" cy="150" r="6" fill="#10B981"/><circle cx="96" cy="152" r="5" fill="#0D9488"/>
+  <text x="154" y="122" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="30" font-weight="700" fill="#0F172A">mai</text>
+  <text x="208" y="122" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="30" font-weight="700" fill="#0D9488">klubi</text>
+  <line x1="32" y1="200" x2="530" y2="200" stroke="#CCECE9" stroke-width="1"/>
+
+  <!-- Headline -->
+  <text x="32" y="286" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#0F172A">Manage your family's</text>
+  <text x="32" y="348" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#0D9488">club activities</text>
+  <text x="32" y="410" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#0F172A">from the terminal.</text>
+  <text x="32" y="460" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="18" fill="#0D9488" opacity="0.8">Open source · myclub.fi · Finnish sports clubs</text>
+  <rect x="32" y="490" width="318" height="44" rx="8" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.5"/>
+  <text x="52" y="517" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="15" fill="#64748B">$</text>
+  <text x="68" y="517" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="15" fill="#0F172A">npm install -g maiklubi</text>
+
+  <!-- Terminal window — light mode -->
+  <rect x="610" y="64" width="556" height="494" rx="14" fill="#FFFFFF" stroke="#CCECE9" stroke-width="1.5"/>
+  <rect x="610" y="64" width="556" height="44" rx="14" fill="#F1F5F9"/>
+  <rect x="610" y="88" width="556" height="20" fill="#F1F5F9"/>
+  <circle cx="638" cy="86" r="7" fill="#FF5F57"/><circle cx="662" cy="86" r="7" fill="#FFBD2E"/><circle cx="686" cy="86" r="7" fill="#28C840"/>
+  <text x="888" y="91" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="12" fill="#94A3B8" text-anchor="middle">maiklubi — zsh</text>
+  <g font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="14">
+    <text x="636" y="152" fill="#0D9488">$</text><text x="654" y="152" fill="#0F172A">maiklubi events list --member Aino --days 7</text>
+    <text x="636" y="180" fill="#0D9488">Events — Aino / Vantaan Palloilijat (4):</text>
+    <line x1="636" y1="188" x2="1142" y2="188" stroke="#E2E8F0" stroke-width="0.8"/>
+    <text x="636" y="210" fill="#10B981">✓</text><text x="656" y="210" fill="#94A3B8">[1001]</text><text x="706" y="210" fill="#0F172A">Kesätreenit</text><text x="818" y="210" fill="#0F172A">ti 10.6.</text><text x="898" y="210" fill="#94A3B8">15:00–16:45</text><text x="1002" y="210" fill="#0D9488">Liikuntahalli</text>
+    <text x="636" y="234" fill="#10B981">✓</text><text x="656" y="234" fill="#94A3B8">[1002]</text><text x="706" y="234" fill="#0F172A">Kesätreenit</text><text x="818" y="234" fill="#0F172A">ke 11.6.</text><text x="898" y="234" fill="#94A3B8">16:00–17:45</text><text x="1002" y="234" fill="#0D9488">Liikuntahalli</text>
+    <text x="636" y="258" fill="#EF4444">✗</text><text x="656" y="258" fill="#94A3B8">[1003]</text><text x="706" y="258" fill="#0F172A">Juoksutekniikka</text><text x="848" y="258" fill="#0F172A">su 15.6.</text><text x="928" y="258" fill="#94A3B8">16:00–17:00</text><text x="1034" y="258" fill="#0D9488">Kenttä</text>
+    <text x="636" y="282" fill="#10B981">✓</text><text x="656" y="282" fill="#94A3B8">[1004]</text><text x="706" y="282" fill="#0F172A">Ottelu</text><text x="790" y="282" fill="#0F172A">ti 17.6.</text><text x="870" y="282" fill="#94A3B8">15:00–16:45</text><text x="974" y="282" fill="#0D9488">Liikuntahalli</text>
+    <line x1="636" y1="298" x2="1142" y2="298" stroke="#E2E8F0" stroke-width="0.8"/>
+    <text x="636" y="320" fill="#D97706">!</text><text x="654" y="320" fill="#0F172A">Kausimaksu 2026</text><text x="812" y="320" fill="#D97706">85,00 €</text><text x="884" y="320" fill="#94A3B8">due 11.6.2026</text>
+    <line x1="636" y1="336" x2="1142" y2="336" stroke="#E2E8F0" stroke-width="0.8"/>
+    <text x="636" y="358" fill="#94A3B8">Members: </text>
+    <circle cx="748" cy="350" r="7" fill="#0D9488"/><path d="M 739,368 C 739,356 757,356 757,368 Z" fill="#0D9488"/>
+    <circle cx="772" cy="350" r="8" fill="#10B981"/><path d="M 762,368 C 762,354 782,354 782,368 Z" fill="#10B981"/>
+    <circle cx="798" cy="350" r="7" fill="#0D9488"/><path d="M 789,368 C 789,356 807,356 807,368 Z" fill="#0D9488"/>
+    <text x="818" y="358" fill="#64748B">Aino, Veikko, Johanna</text>
+    <line x1="636" y1="382" x2="1142" y2="382" stroke="#E2E8F0" stroke-width="0.8"/>
+    <text x="636" y="406" fill="#94A3B8"># Claude:</text>
+    <text x="636" y="428" fill="#0D9488">Ilmoita Aino kaikkiin kesätreeneihin</text>
+    <text x="636" y="454" fill="#94A3B8">↳</text><text x="654" y="454" fill="#10B981">Updated 3 RSVPs for Aino ✓</text>
+    <text x="636" y="478" fill="#0D9488">$</text><rect x="652" y="463" width="10" height="18" rx="1" fill="#0D9488" opacity="0.6"/>
+  </g>
+
+  <line x1="32" y1="564" x2="1168" y2="564" stroke="#CCECE9" stroke-width="1"/>
+  <text x="32" y="595" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="13" fill="#0F172A" opacity="0.25">github.com/jannemakela/maiklubi</text>
+  <text x="1168" y="595" font-family="'JetBrains Mono','Fira Code','Courier New',monospace" font-size="13" fill="#0D9488" opacity="0.7" text-anchor="end">Free · Open source · MIT</text>
+</svg>

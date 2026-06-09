@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.DS_Store
+
+# Credentials and secrets
+credentials.txt
+.env
+.env.*
+!.env.example
+
+# HAR files contain session cookies and auth tokens
+*.har
+
+# HTML reference files with personal data
+maiclub/
+myclubcalendar/

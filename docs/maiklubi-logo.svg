@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield / spade — symmetric about x=256, point centered -->
+  <path d="M 256,480 L 64,368 L 64,104 Q 64,66 102,66 L 410,66 Q 448,66 448,104 L 448,368 Z"
+        fill="#FFFFFF" stroke="#0D9488" stroke-width="12" stroke-linejoin="round"/>
+  <!-- >_ prompt, centered as a unit on the shield axis -->
+  <text x="256" y="214" font-family="'JetBrains Mono','Fira Code','Courier New',monospace"
+        font-size="150" font-weight="700" fill="#0D9488" text-anchor="middle">&gt;_</text>
+  <!-- Three people with shoulders, centered about x=256 -->
+  <circle cx="182" cy="312" r="26" fill="#0D9488"/>
+  <path d="M 134,392 C 134,330 230,330 230,392 Z" fill="#0D9488"/>
+  <circle cx="330" cy="312" r="26" fill="#0D9488"/>
+  <path d="M 282,392 C 282,330 378,330 378,392 Z" fill="#0D9488"/>
+  <circle cx="256" cy="300" r="32" fill="#10B981"/>
+  <path d="M 198,392 C 198,322 314,322 314,392 Z" fill="#10B981"/>
+</svg>

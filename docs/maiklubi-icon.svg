@@ -1,0 +1,13 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="80" fill="#F0FDFA"/>
+  <!-- Three people with shoulders, centered about x=256 -->
+  <!-- left -->
+  <circle cx="146" cy="232" r="44" fill="#0D9488"/>
+  <path d="M 74,396 C 74,300 218,300 218,396 Z" fill="#0D9488"/>
+  <!-- right -->
+  <circle cx="366" cy="232" r="44" fill="#0D9488"/>
+  <path d="M 294,396 C 294,300 438,300 438,396 Z" fill="#0D9488"/>
+  <!-- center (front, emerald highlight) -->
+  <circle cx="256" cy="204" r="54" fill="#10B981"/>
+  <path d="M 168,396 C 168,280 344,280 344,396 Z" fill="#10B981"/>
+</svg>

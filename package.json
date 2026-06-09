@@ -1,0 +1,53 @@
+{
+  "name": "maiklubi",
+  "version": "1.2.0",
+  "description": "CLI for myclub.fi — built for parents and AI agents",
+  "type": "module",
+  "bin": {
+    "maiklubi": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.17.0"
+  },
+  "license": "MIT",
+  "author": "Janne Mäkelä",
+  "homepage": "https://github.com/jannemakela/maiklubi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jannemakela/maiklubi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jannemakela/maiklubi/issues"
+  },
+  "keywords": [
+    "myclub",
+    "cli",
+    "finland",
+    "sports",
+    "calendar",
+    "ai-agent"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "MAIKLUBI_INTEGRATION=1 vitest run --config vitest.integration.config.ts",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.5.2",
+    "tough-cookie": "^5.0.0",
+    "undici": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/tough-cookie": "^4.0.5",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.8"
+  }
+}

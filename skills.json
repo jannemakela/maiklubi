@@ -1,0 +1,9 @@
+{
+  "skills": [
+    {
+      "name": "maiklubi",
+      "path": "skills/maiklubi",
+      "description": "Use the maiklubi CLI to fetch events, invoices, notifications, and RSVP to events for Finnish sports club members on myclub.fi."
+    }
+  ]
+}

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>maiklubi — myclub.fi CLI for families</title>
+  <meta name="description" content="A command-line tool and AI agent integration for managing your family's Finnish sports club activities via myclub.fi." />
+
+  <link rel="icon" type="image/svg+xml" href="maiklubi-icon.svg" />
+  <link rel="icon" type="image/png" href="maiklubi-icon.png" />
+  <link rel="apple-touch-icon" href="maiklubi-icon.png" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="maiklubi — myclub.fi CLI for families" />
+  <meta property="og:description" content="Manage your family's sports club events, invoices, and announcements from the terminal or via AI agents." />
+  <meta property="og:url" content="https://maiklubi.com/" />
+  <meta property="og:image" content="https://maiklubi.com/maiklubi-og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="maiklubi — myclub.fi CLI for families" />
+  <meta name="twitter:description" content="Manage your family's sports club events, invoices, and announcements from the terminal or via AI agents." />
+  <meta name="twitter:image" content="https://maiklubi.com/maiklubi-og.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Light page */
+      --bg: #ffffff;
+      --bg2: #f5f7fa;
+      --bg3: #ffffff;
+      --border: #e4e8ee;
+      --text: #1b2433;
+      --text-muted: #5a6a83;
+      --primary: #0D9488;       /* teal — matches the maiklubi logo */
+      --primary-dim: #0F766E;
+      --primary-glow: rgba(13, 148, 136, 0.10);
+      --accent: #ea580c;        /* orange — warm contrast */
+      --accent-glow: rgba(234, 88, 12, 0.10);
+      /* Dark code/terminal panels (kept dark on the light page) */
+      --panel-bg: #0d1117;
+      --panel-bar: #161b27;
+      --panel-border: #2a3348;
+      --panel-text: #e8edf5;
+      --panel-muted: #8896b0;
+      --panel-green: #4ade80;
+      --panel-red: #f87171;
+      --panel-orange: #fb923c;
+      --panel-cyan: #a5f3fc;
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; }
+    .nav-logo img { height: 46px; width: auto; display: block; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links .btn-nav {
+      background: var(--primary-glow);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .nav-links .btn-nav:hover { background: rgba(13, 148, 136, 0.2); }
+
+    /* ── Sections ── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* ── Hero ── */
+    #hero {
+      padding: 7rem 2rem 5rem;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(13, 148, 136, 0.08), transparent),
+        var(--bg);
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--primary-glow);
+      border: 1px solid rgba(13, 148, 136, 0.3);
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+    }
+    h1 em { font-style: normal; color: var(--primary); }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background: var(--primary-dim); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--text-muted); }
+
+    .install-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--panel-muted);
+    }
+    .install-box span { color: var(--panel-green); }
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--panel-muted);
+      cursor: pointer;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      transition: color 0.15s;
+    }
+    .copy-btn:hover { color: var(--panel-text); }
+
+    /* ── Features ── */
+    #features { background: var(--bg); }
+    #example { background: var(--bg2); }
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .section-intro {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin-bottom: 3rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+    .feature-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(13, 148, 136, 0.3);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.9rem;
+    }
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── How it works ── */
+    #howto { background: var(--bg); }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 2rem;
+      counter-reset: steps;
+    }
+    .step { counter-increment: steps; }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-glow);
+      border: 1px solid rgba(13, 148, 136, 0.3);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.88rem; color: var(--text-muted); }
+
+    /* ── Terminal demo ── */
+    #demo { background: var(--bg2); }
+    .terminal {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-width: 680px;
+      margin: 2.5rem auto 0;
+      box-shadow: 0 12px 32px rgba(27, 36, 51, 0.12);
+    }
+    .terminal-bar {
+      background: var(--panel-bar);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .dot-red   { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+    .dot-yellow{ width: 11px; height: 11px; border-radius: 50%; background: #febc2e; }
+    .dot-green { width: 11px; height: 11px; border-radius: 50%; background: #28c840; }
+    .terminal-body {
+      padding: 1.25rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      text-align: left;
+    }
+    .t-prompt { color: var(--panel-green); }
+    .t-cmd    { color: var(--panel-text); }
+    .t-yes    { color: var(--panel-green); }
+    .t-no     { color: var(--panel-red); }
+    .t-muted  { color: var(--panel-muted); }
+    .t-accent { color: var(--panel-orange); }
+    .t-blank  { display: block; height: 0.4rem; }
+
+    /* ── AI agent ── */
+    #ai { background: var(--bg); }
+    .ai-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    @media (max-width: 700px) { .ai-split { grid-template-columns: 1fr; } }
+    .ai-text h2 { margin-bottom: 1rem; }
+    .ai-text p { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem; }
+    .ai-steps { margin: 0 0 1rem; padding-left: 1.3rem; }
+    .ai-steps li { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0.6rem; }
+    .ai-steps li strong { color: var(--text); font-weight: 600; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: rgba(27, 36, 51, 0.06); padding: 0.1em 0.4em; border-radius: 4px; }
+    .pill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+    .pill {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Chat-style power example ── */
+    .power-example { max-width: 640px; margin: 3.5rem auto 0; }
+    .chat { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
+    .chat-row { display: flex; }
+    .chat-row.user { justify-content: flex-end; }
+    .chat-row.bot { justify-content: flex-start; }
+    .bubble {
+      max-width: 82%;
+      padding: 0.85rem 1.05rem;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    .chat-row.user .bubble {
+      background: var(--primary);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-row.bot .bubble {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    .bubble .tool {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      color: var(--primary-dim);
+      margin-bottom: 0.55rem;
+    }
+    .bubble strong { font-weight: 600; }
+
+    /* ── FAQ ── */
+    #faq { background: var(--bg2); }
+    .faq-list { max-width: 760px; margin: 2.5rem auto 0; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 1.1rem 0;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: "+";
+      color: var(--primary);
+      font-size: 1.4rem;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .faq-item[open] summary::after { content: "–"; }
+    .faq-item p {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0 0 1.2rem;
+      max-width: 92%;
+    }
+
+    /* ── CTA ── */
+    #cta {
+      background: var(--bg);
+      text-align: center;
+    }
+    #cta h2 { margin-bottom: 0.75rem; }
+    #cta p { color: var(--text-muted); margin-bottom: 2rem; max-width: 440px; margin-left: auto; margin-right: auto; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+    footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 0.5rem; }
+
+    @media (max-width: 600px) {
+      .nav-links .hide-mobile { display: none; }
+      section { padding: 3.5rem 1.25rem; }
+      #hero { padding: 5rem 1.25rem 3.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo"><img src="maiklubi-logo.svg" alt="maiklubi" /></div>
+    <div class="nav-links">
+      <a href="#features" class="hide-mobile">Features</a>
+      <a href="#howto" class="hide-mobile">Setup</a>
+      <a href="#ai" class="hide-mobile">AI agents</a>
+      <a href="https://github.com/jannemakela/maiklubi" class="btn-nav" target="_blank" rel="noopener">
+        GitHub →
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-tag">Open source · myclub.fi · Finnish sports clubs</div>
+    <h1>Manage your family's<br><em>club activities</em> from the terminal</h1>
+    <p class="hero-sub">
+      maiklubi is a CLI and AI agent integration for myclub.fi —
+      check events, RSVP, view invoices and notifications across
+      multiple members and clubs in one place.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/jannemakela/maiklubi" class="btn btn-primary" target="_blank" rel="noopener">
+        Get started
+      </a>
+      <a href="#demo" class="btn btn-outline">See it in action</a>
+    </div>
+    <div class="install-box">
+      <span>$</span> npm install -g maiklubi
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('npm install -g maiklubi');this.textContent='✓';setTimeout(()=>this.textContent='copy',1500)">copy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Real example ── -->
+<section id="example">
+  <div class="container">
+    <div class="power-example" style="margin-top:0">
+      <div class="section-label" style="text-align:center">Real example</div>
+      <h2 style="text-align:center">Stop scrolling, just ask</h2>
+      <div class="chat">
+        <div class="chat-row user">
+          <div class="bubble">Summarize the discussion for next weekend's tournament</div>
+        </div>
+        <div class="chat-row bot">
+          <div class="bubble">
+            <span class="tool">↳ Read 12 messages from the Vantaa Cup thread</span>
+            For the <strong>Vantaa Cup (Sat 14.6.)</strong>: Johanna has a seat in <strong>Viivi's parents' car</strong>, leaving 8:15 from the hall. Also riding along: <strong>Sofia</strong>. One seat is still open with the Korhonen's. Reminder from the coach: shin guards + packed snacks — the kiosk is cash only.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">What it does</div>
+    <h2>Everything in one command</h2>
+    <p class="section-intro">
+      Stop switching between browser tabs for each child and each club.
+      maiklubi pulls it all together.
+    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Events &amp; RSVP</h3>
+        <p>List upcoming training sessions and matches. Confirm or cancel attendance for any family member directly from the terminal.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👨‍👩‍👧‍👦</div>
+        <h3>Multiple members</h3>
+        <p>Configure every child across every club once. Run commands for one person or all of them with <code>--all-members</code>.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧾</div>
+        <h3>Invoices</h3>
+        <p>See open and paid invoices at a glance — due dates, amounts, and payment references without logging in to each club separately.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Notifications</h3>
+        <p>Read club announcements straight from the terminal. Never miss an important notice buried in an email digest.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📆</div>
+        <h3>Calendar subscriptions</h3>
+        <p>Create webcal:// subscriptions filtered by person, hobby, or attendance status — feed directly into Apple Calendar or Google Calendar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI agent ready</h3>
+        <p>Every command supports <code>--json</code> output, plus a bundled agent skill. Ask your AI assistant to check who's joining tonight's practice.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Interactive mode</h3>
+        <p>Just run <code>maiklubi</code> — a menu-driven interface guides you through browsing and acting on events, invoices, and calendars.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Date filtering</h3>
+        <p>Filter events by <code>--start</code> and <code>--end</code> dates, or use <code>--days</code> for a rolling lookahead window.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Terminal demo ── -->
+<section id="demo">
+  <div class="container" style="text-align:center">
+    <div class="section-label">In practice</div>
+    <h2>See it in action</h2>
+    <p class="section-intro" style="margin:0 auto 0">
+      A quick look at the commands you'll actually use every day.
+    </p>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot-red"></div><div class="dot-yellow"></div><div class="dot-green"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$</span> <span class="t-cmd">maiklubi events list --member Aino --start 2026-06-01 --end 2026-06-30</span></div>
+        <span class="t-blank"></span>
+        <div><span class="t-muted">Events — Aino / club-a (4):</span></div>
+        <div><span class="t-yes">  ✓</span> <span class="t-muted">[1001] Practice         Tue 10.6. 15:00–16:45  Sports hall</span></div>
+        <div><span class="t-yes">  ✓</span> <span class="t-muted">[1002] Practice         Wed 11.6. 16:00–17:45  Sports hall</span></div>
+        <div><span class="t-no">  ✗</span> <span class="t-muted">[1003] Running drills   Sun 15.6. 16:00–17:00  Sports field</span></div>
+        <div><span class="t-yes">  ✓</span> <span class="t-muted">[1004] Match            Tue 17.6. 15:00–16:45  Sports hall</span></div>
+        <span class="t-blank"></span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">maiklubi events indicate --member Aino --id 1003 --status yes</span></div>
+        <div><span class="t-yes">  ✓ Aino → Running drills: attending</span></div>
+        <span class="t-blank"></span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">maiklubi invoices list --member Aino</span></div>
+        <span class="t-blank"></span>
+        <div><span class="t-muted">Invoices — Aino / club-a (1):</span></div>
+        <div><span class="t-accent">  !  Season fee 2026 (1/3)  due 11.6.2026  85.00 €</span></div>
+        <span class="t-blank"></span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">maiklubi summary --all-members --days 7 --json</span></div>
+        <div><span class="t-muted">  → structured JSON for AI agents and scripts</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section id="howto">
+  <div class="container">
+    <div class="section-label">Setup</div>
+    <h2>Up and running in minutes</h2>
+    <p class="section-intro">No complicated configuration. Uses your existing myclub.fi credentials.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Install</h3>
+        <p>Run <code>npm install -g maiklubi</code>. Requires Node.js 18 or later.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Sign in</h3>
+        <p>Run <code>maiklubi</code> — the interactive setup will ask for your myclub.fi email and password and store them securely.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Add family members</h3>
+        <p>The tool discovers your club memberships automatically. Name each person once and you're done.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Start using it</h3>
+        <p>Run <code>maiklubi</code> for the interactive menu, or use individual commands in scripts and AI workflows.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI agent ── -->
+<section id="ai">
+  <div class="container">
+    <div class="ai-split">
+      <div class="ai-text">
+        <div class="section-label">Use with Claude</div>
+        <h2>Set it up in four steps</h2>
+        <ol class="ai-steps">
+          <li><strong>Install:</strong> <code>npm install -g maiklubi</code></li>
+          <li><strong>Sign in once:</strong> run <code>maiklubi</code> and enter your myclub.fi email &amp; password (stored locally).</li>
+          <li><strong>Add the skill:</strong> copy <code>skills/maiklubi</code> into <code>~/.claude/skills/</code> so Claude Code can use it.</li>
+          <li><strong>Just ask</strong> in plain language — Claude runs the right <code>maiklubi … --json</code> commands and reports back.</li>
+        </ol>
+        <div class="pill-list">
+          <span class="pill">--json</span>
+          <span class="pill">agent skill</span>
+          <span class="pill">Claude Code</span>
+          <span class="pill">Cursor</span>
+          <span class="pill">SKILL.md</span>
+        </div>
+      </div>
+      <div>
+        <div class="chat">
+          <div class="chat-row user">
+            <div class="bubble">Sign all my kids up for autumn training — except Johanna for Friday's football</div>
+          </div>
+          <div class="chat-row bot">
+            <div class="bubble">
+              <span class="tool">↳ Updated 23 RSVPs across Aino, Veikko &amp; Johanna</span>
+              Done — everyone's signed up for the autumn training sessions, and I left Johanna out of Friday's football as you asked. Two sessions clash with the Vantaa Cup weekend — want me to decline those too, or leave them for now?
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label" style="text-align:center">FAQ</div>
+    <h2 style="text-align:center">Questions, answered</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Where are my credentials stored?</summary>
+        <p>On your own machine — in <code>~/.config/maiklubi/config.json</code> (owner-only permissions), or via environment variables. They're only ever sent to myclub.fi to log you in; nothing goes to any third-party server.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need a server or backend?</summary>
+        <p>No. maiklubi is a command-line tool that runs entirely on your computer and talks directly to myclub.fi. There's nothing to host or sign up for.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is maiklubi affiliated with myClub?</summary>
+        <p>No. It's an independent, unofficial tool — not affiliated with, endorsed by, or connected to myClub / myclub.fi. You use it with your own account and credentials, at your own risk.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What can it access — is it safe?</summary>
+        <p>It logs in as you and sees exactly what you'd see in the myclub.fi web app: your family's events, invoices, and notices — nothing more. Your password stays on your machine.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Will it change anything on its own?</summary>
+        <p>No. Reading is read-only. It only makes changes — like RSVPing to an event — when you explicitly run that command, or ask your AI assistant to.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can it handle several children and clubs?</summary>
+        <p>Yes. Configure each family member once, across as many clubs as they belong to, then run any command for one person or for everyone at once with <code>--all-members</code>.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it work with Claude and other AI assistants?</summary>
+        <p>Yes — every command has a <code>--json</code> mode and the repo ships an agent skill, so Claude Code and similar tools can run maiklubi for you. See the setup steps above.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="container">
+    <h2>Ready to simplify family club management?</h2>
+    <p>Free, open source, and takes two minutes to set up.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/jannemakela/maiklubi" class="btn btn-primary" target="_blank" rel="noopener">
+        View on GitHub
+      </a>
+      <a href="https://github.com/jannemakela/maiklubi#readme" class="btn btn-outline" target="_blank" rel="noopener">
+        Read the docs
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div>maiklubi — open source CLI for myclub.fi</div>
+  <div class="footer-links">
+    <a href="https://github.com/jannemakela/maiklubi" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/jannemakela/maiklubi/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+    <a href="https://www.myclub.fi/" target="_blank" rel="noopener">myclub.fi</a>
+  </div>
+</footer>
+
+</body>
+</html>
