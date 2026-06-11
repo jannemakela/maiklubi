@@ -200,6 +200,8 @@ async function handleCommand(argv: string[]) {
     withParticipants: flags.withParticipants,
     start: flags.start,
     end: flags.end,
+    allEvents: flags.allEvents,
+    joinableOnly: flags.joinableOnly,
   });
 }
 

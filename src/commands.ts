@@ -3,7 +3,8 @@ import { resolveMember, resolveClub } from "./resolve.js";
 import { listUsers } from "./users.js";
 import { parseInvoices, parseNotifications, parseClubsFromHome } from "./parsers.js";
 import { clubSlug, formatMonth, formatEventTime, indicationSymbol } from "./interactive.js";
-import { filterEventsByDateRange, filterEventWindow, localDateStr } from "./filter.js";
+import { filterEventsByDateRange, filterEventWindow, localDateStr, selectEvents } from "./filter.js";
+import type { EventView } from "./filter.js";
 import type { Pair } from "./interactive.js";
 import type { MemberConfig, MemberClub, StoredProfile, EventParticipant, Indication } from "./types.js";
 
@@ -43,31 +44,36 @@ export async function cmdEvents(
   json: boolean,
   withParticipants = false,
   start?: string,
-  end?: string
+  end?: string,
+  view: EventView = "relevant"
 ) {
   await session.selectAccount(club.clubUrl, club.memberId);
-  const allEvents = await session.getEventsList(club.clubUrl);
-  const events = filterEventsByDateRange(allEvents, start, end);
+  const listed = await session.getEventsList(club.clubUrl, { joinable: true });
+  const inRange = filterEventsByDateRange(listed, start, end);
   const label = `${member.name} / ${clubSlug(club.clubUrl)}`;
 
-  // Fetch all indications in parallel
+  // Attach indication status (parallel), then apply the chosen view
+  // (relevant default / joinable-only / all).
   const indications = await Promise.all(
-    events.map((e) => session.getEventIndication(club.clubUrl, e.id).catch(() => "no_response" as const))
+    inRange.map((e) => session.getEventIndication(club.clubUrl, e.id).catch(() => "no_response" as const))
   );
+  const withStatus = inRange.map((e, i) => ({ ...e, indication: indications[i] }));
+  const events = selectEvents(withStatus, view);
 
   if (json) {
-    const withStatus = events.map((e, i) => ({ ...e, indication: indications[i] }));
-    out({ member: member.name, club: club.clubUrl, memberId: club.memberId, events: withStatus }, true);
+    out({ member: member.name, club: club.clubUrl, memberId: club.memberId, events }, true);
     return;
   }
 
   console.log(`\nEvents — ${label} (${events.length}):`);
-  for (let i = 0; i < events.length; i++) {
-    const e = events[i];
-    const ind = indications[i];
+  for (const e of events) {
+    const ind = e.indication;
     const sym = indicationSymbol(ind);
     const time = formatEventTime(e.starts_at, e.ends_at);
-    console.log(`  ${sym} [${e.id}] ${e.name}  ${time || formatMonth(e.month)}  ${e.venue}`);
+    const closed = e.joinable === false
+      ? (e.registrationClosed ? "  🔒 registration closed" : "  🔒 not joinable")
+      : "";
+    console.log(`  ${sym} [${e.id}] ${e.name}  ${time || formatMonth(e.month)}  ${e.venue}${closed}`);
 
     if (withParticipants && ind === "yes") {
       try {
@@ -308,9 +314,9 @@ export async function cmdSummary(
   cutoff.setDate(cutoff.getDate() + days);
   const cutoffStr = localDateStr(cutoff);
 
-  // Fetch events, invoices, and notifications in parallel
+  // Fetch events (with joinability), invoices, and notifications in parallel
   const [allEvents, invoiceHtml, notifHtml] = await Promise.all([
-    session.getEventsList(club.clubUrl),
+    session.getEventsList(club.clubUrl, { joinable: true }),
     session.fetchPage(`${club.clubUrl}/flow/invoices`),
     session.fetchPage(`${club.clubUrl}/flow/notifications`),
   ]);
@@ -325,10 +331,11 @@ export async function cmdSummary(
     )
   );
 
-  const eventsWithStatus = upcomingEvents.map((e, i) => ({
-    ...e,
-    indication: indications[i],
-  }));
+  // Drop unjoinable + no-response noise from the digest.
+  const eventsWithStatus = selectEvents(
+    upcomingEvents.map((e, i) => ({ ...e, indication: indications[i] })),
+    "relevant"
+  );
 
   const invoices = parseInvoices(invoiceHtml, "open");
   const notifications = parseNotifications(notifHtml).slice(0, 5);
@@ -341,11 +348,14 @@ export async function cmdSummary(
 
   console.log(`\nSummary — ${label} (next ${days} days)`);
 
-  console.log(`\n  Events (${upcomingEvents.length}):`);
+  console.log(`\n  Events (${eventsWithStatus.length}):`);
   for (const e of eventsWithStatus) {
     const sym = indicationSymbol(e.indication as Indication);
     const time = formatEventTime(e.starts_at, e.ends_at);
-    console.log(`    ${sym} ${e.name}  ${time || formatMonth(e.month)}  ${e.venue}`);
+    const closed = e.joinable === false
+      ? (e.registrationClosed ? "  🔒 registration closed" : "  🔒 not joinable")
+      : "";
+    console.log(`    ${sym} ${e.name}  ${time || formatMonth(e.month)}  ${e.venue}${closed}`);
   }
 
   console.log(`\n  Open invoices: ${invoices.length}`);
@@ -365,11 +375,12 @@ export async function runForPairs(
   pairs: Pair[],
   session: MyClubSession,
   cmd: string,
-  flags: { json?: boolean; limit?: number; withParticipants?: boolean; start?: string; end?: string }
+  flags: { json?: boolean; limit?: number; withParticipants?: boolean; start?: string; end?: string; allEvents?: boolean; joinableOnly?: boolean }
 ) {
+  const view: EventView = flags.allEvents ? "all" : flags.joinableOnly ? "joinable" : "relevant";
   for (const { member, club } of pairs) {
     if (cmd === "events") {
-      await cmdEvents(session, member, club, flags.json ?? false, flags.withParticipants ?? false, flags.start, flags.end);
+      await cmdEvents(session, member, club, flags.json ?? false, flags.withParticipants ?? false, flags.start, flags.end, view);
     } else if (cmd === "invoices") {
       await cmdInvoices(session, member, club, flags.json ?? false);
     } else if (cmd === "notifications") {

@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { parseEventIndication, parseDetailPageIndication, parseIndicationFromToggleJs, parseEventsList, parseEventComments, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl } from "./parsers.js";
+import { parseEventIndication, parseDetailPageIndication, parseEventJoinable, parseIndicationFromToggleJs, parseEventsList, parseEventComments, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl } from "./parsers.js";
 
 // ─── Shared fixture helper ────────────────────────────────────────────────────
 // Encode a value so it can be embedded as an HTML attribute (data-foo="...").
@@ -532,5 +532,33 @@ describe("parseCalendarSubscriptionUrl", () => {
 
   test("returns null for text with no URL", () => {
     expect(parseCalendarSubscriptionUrl('$("#general-modal").html("<p>Virhe</p>")')).toBeNull();
+  });
+});
+
+// ─── parseEventJoinable ───────────────────────────────────────────────────────
+describe("parseEventJoinable", () => {
+  // Open event: detail page renders the indication buttons.
+  const OPEN_HTML = `<div class="event-actions"><div class="btn-group">
+    <a class="btn btn-success" data-indication="no_response" href="/flow/events/1/edit">Osallistun</a>
+    <a class="btn btn-light" data-indication="no" href="/flow/events/1/edit">En osallistu</a>
+  </div></div>`;
+
+  // Registration deadline passed: buttons removed, "Ilmoittautuminen päättynyt" shown.
+  const CLOSED_HTML = `<div class="event-actions"><span>Ilmoittautuminen päättynyt</span></div>
+    <h3>Ilmoittautumiset</h3>`;
+
+  // Match-type event: no join widget at all, no deadline notice.
+  const NO_WIDGET_HTML = `<h3>Ilmoittautumiset</h3><div class="participants">...</div>`;
+
+  test("open event with the indication widget is joinable", () => {
+    expect(parseEventJoinable(OPEN_HTML)).toEqual({ joinable: true, registrationClosed: false });
+  });
+
+  test("registration-closed event is not joinable and flagged closed", () => {
+    expect(parseEventJoinable(CLOSED_HTML)).toEqual({ joinable: false, registrationClosed: true });
+  });
+
+  test("event without a join widget is not joinable (not flagged closed)", () => {
+    expect(parseEventJoinable(NO_WIDGET_HTML)).toEqual({ joinable: false, registrationClosed: false });
   });
 });

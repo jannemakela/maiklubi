@@ -10,6 +10,8 @@ export interface CliFlags {
   status?: Indication;
   indication?: string;
   withParticipants?: boolean;
+  allEvents?: boolean;
+  joinableOnly?: boolean;
   days?: number;
   start?: string;
   end?: string;
@@ -52,6 +54,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
     }
     if (arg === "--indication" && rest[i + 1]) { flags.indication = rest[i + 1]; i += 2; continue; }
     if (arg === "--with-participants") { flags.withParticipants = true; i++; continue; }
+    if (arg === "--all-events") { flags.allEvents = true; i++; continue; }
+    if (arg === "--joinable-only") { flags.joinableOnly = true; i++; continue; }
     if (arg === "--days" && rest[i + 1]) {
       const v = Number(rest[i + 1]);
       if (!Number.isNaN(v)) flags.days = v;

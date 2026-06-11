@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 — 2026-06-11
+
+### Added
+- **Joinability awareness.** Listings now detect events you can't join — registration-closed (deadline passed → 🔒 "registration closed") and match-type events with no sign-up (🔒 "not joinable").
+- **Default listing declutters:** `events list` and `summary` hide untouched-unjoinable noise (closed/match events you never answered) while keeping joinable events and any unjoinable event you've joined/declined.
+- New flags for `events list`: **`--all-events`** (show everything) and **`--joinable-only`** (only events you can still join).
+
+### Fixed
+- `events indicate` now refuses to change a closed/non-joinable event with a clear message, instead of sending a toggle that silently no-ops while appearing to succeed.
+
 ## 1.2.0 — 2026-06-09
 
 ### Added

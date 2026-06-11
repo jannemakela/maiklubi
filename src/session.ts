@@ -1,6 +1,6 @@
 import { CookieJar } from "tough-cookie";
 import { fetch } from "undici";
-import { parseDetailPageIndication, parseIndicationFromToggleJs, parseEventComments, parseEventsList, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl } from "./parsers.js";
+import { parseDetailPageIndication, parseIndicationFromToggleJs, parseEventComments, parseEventsList, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl, parseEventJoinable } from "./parsers.js";
 import { INDICATION_BY_ID, ID_BY_INDICATION } from "./types.js";
 import type { Event, EventComment, EventParticipant, CalendarSubscription, Indication } from "./types.js";
 
@@ -298,6 +298,20 @@ export class MyClubSession {
       return { ownParticipation: ID_BY_INDICATION[currentStatus] ?? 4, indication: currentStatus };
     }
 
+    // Before attempting to change indication, confirm the event is actually
+    // joinable. After the registration deadline (or for match-type events) myClub
+    // removes the join widget; sending the toggle would silently no-op while
+    // appearing to succeed. Fail loudly with a clear reason instead.
+    const detailHtml = await this.fetchPage(`${clubUrl}/flow/events/${eventId}`);
+    const { joinable, registrationClosed } = parseEventJoinable(detailHtml);
+    if (!joinable) {
+      throw new Error(
+        registrationClosed
+          ? "Registration has closed for this event — indication can no longer be changed."
+          : "This event is not open for joining (no registration available)."
+      );
+    }
+
     await this.sendIndicationToggle(clubUrl, eventId, targetStatus);
     // Read back the actual state: the JS response parse is unreliable for some event types
     // (e.g. camp events return different HTML that contains unrelated btn-success elements).
@@ -305,22 +319,29 @@ export class MyClubSession {
     return { ownParticipation: ID_BY_INDICATION[newStatus] ?? 4, indication: newStatus };
   }
 
-  async getEventsList(clubUrl: string): Promise<Event[]> {
+  async getEventsList(clubUrl: string, opts: { joinable?: boolean } = {}): Promise<Event[]> {
     const html = await this.fetchPage(`${clubUrl}/flow/`);
     const events = parseEventsList(html);
-    // Clubs without TklCalendar (e.g. PPJ) omit starts_at/ends_at from the list page.
-    // Fetch those events' detail pages in parallel to get the time from event-time-details.
-    const needsTime = events.filter((e) => !e.starts_at);
-    if (needsTime.length > 0) {
+    // Detail pages give us missing times (clubs without TklCalendar, e.g. PPJ) and,
+    // when requested, joinability (only available on the detail page). Fetch in parallel.
+    const needDetail = opts.joinable ? events : events.filter((e) => !e.starts_at);
+    if (needDetail.length > 0) {
       await Promise.all(
-        needsTime.map(async (event) => {
+        needDetail.map(async (event) => {
           try {
             const detailHtml = await this.fetchPage(`${clubUrl}/flow/events/${event.id}`);
-            const times = parseEventTimeDetails(detailHtml);
-            if (times.starts_at) event.starts_at = times.starts_at;
-            if (times.ends_at) event.ends_at = times.ends_at;
+            if (!event.starts_at) {
+              const times = parseEventTimeDetails(detailHtml);
+              if (times.starts_at) event.starts_at = times.starts_at;
+              if (times.ends_at) event.ends_at = times.ends_at;
+            }
+            if (opts.joinable) {
+              const j = parseEventJoinable(detailHtml);
+              event.joinable = j.joinable;
+              event.registrationClosed = j.registrationClosed;
+            }
           } catch {
-            // skip — event stays without time
+            // skip — event stays without time/joinability
           }
         })
       );

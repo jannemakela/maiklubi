@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import { filterEventsByDateRange, filterEventWindow, localDateStr } from "./filter.js";
+import { filterEventsByDateRange, filterEventWindow, localDateStr, selectEvents } from "./filter.js";
 
 const EVENTS = [
   { id: 1, name: "May event",    starts_at: "2026-05-15T10:00:00", month: "2026-05-01" },
@@ -79,5 +79,28 @@ describe("localDateStr", () => {
   test("formats a Date as local YYYY-MM-DD (no UTC shift)", () => {
     expect(localDateStr(new Date(2026, 5, 9))).toBe("2026-06-09"); // month is 0-indexed
     expect(localDateStr(new Date(2026, 0, 3))).toBe("2026-01-03"); // zero-padded
+  });
+});
+
+describe("selectEvents", () => {
+  const evs = [
+    { id: 1, joinable: true,  indication: "no_response" }, // joinable, no response
+    { id: 2, joinable: true,  indication: "yes" },         // joinable, joined
+    { id: 3, joinable: false, indication: "yes" },         // unjoinable but joined
+    { id: 4, joinable: false, indication: "no" },          // unjoinable but declined
+    { id: 5, joinable: false, indication: "no_response" }, // unjoinable + no response (noise)
+    { id: 6, indication: "no_response" },                  // joinable unknown
+  ];
+
+  test("'relevant' (default) hides only unjoinable + no-response events", () => {
+    expect(selectEvents(evs).map((e) => e.id)).toEqual([1, 2, 3, 4, 6]);
+  });
+
+  test("'joinable' drops every unjoinable event, even joined/declined", () => {
+    expect(selectEvents(evs, "joinable").map((e) => e.id)).toEqual([1, 2, 6]);
+  });
+
+  test("'all' shows everything", () => {
+    expect(selectEvents(evs, "all").map((e) => e.id)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });

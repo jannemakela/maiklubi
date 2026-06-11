@@ -199,7 +199,7 @@ export async function interactiveEvents(session: MyClubSession, pairs: Pair[]): 
 
   for (const { member, club } of pairs) {
     await session.selectAccount(club.clubUrl, club.memberId);
-    const events = await session.getEventsList(club.clubUrl);
+    const events = await session.getEventsList(club.clubUrl, { joinable: true });
     for (const event of events) {
       items.push({ event, member, club });
     }
@@ -233,16 +233,27 @@ export async function interactiveEvents(session: MyClubSession, pairs: Pair[]): 
   }
   console.log(" valmis.");
 
+  // Default view: hide events you can neither join nor have acted on (unjoinable + no response).
+  const visible = items.filter(
+    ({ event }) =>
+      event.joinable !== false || (indicationMap.get(event.id) ?? "no_response") !== "no_response"
+  );
+  if (visible.length === 0) {
+    console.log("\nEi ilmoittauduttavia tapahtumia.");
+    return;
+  }
+
   while (true) {
     // Rebuild choices each loop so statuses stay current after changes
     const eventChoices: Array<{ value: number; name: string }> = [
-      ...items.map(({ event, member, club }, idx) => {
+      ...visible.map(({ event, member, club }, idx) => {
         const status = indicationMap.get(event.id) ?? "no_response";
         const sym = indicationSymbol(status);
         const time = formatEventTime(event.starts_at, event.ends_at) || formatMonth(event.month);
+        const lock = event.joinable === false ? (event.registrationClosed ? " 🔒 suljettu" : " 🔒") : "";
         const label = showMember
-          ? `${sym}  [${member.name}/${clubSlug(club.clubUrl)}] ${event.name}  (${time})  ${event.venue}`
-          : `${sym}  ${event.name}  (${time})  ${event.venue}`;
+          ? `${sym}  [${member.name}/${clubSlug(club.clubUrl)}] ${event.name}  (${time})  ${event.venue}${lock}`
+          : `${sym}  ${event.name}  (${time})  ${event.venue}${lock}`;
         return { value: idx, name: label };
       }),
       { value: -1, name: "← Takaisin" },
@@ -251,14 +262,19 @@ export async function interactiveEvents(session: MyClubSession, pairs: Pair[]): 
     const chosenIdx = await orCancel(select({ message: "Valitse tapahtuma:", choices: eventChoices }));
     if (chosenIdx === CANCELLED || chosenIdx === -1) return;
 
-    const { event, club } = items[chosenIdx]!;
+    const { event, club } = visible[chosenIdx]!;
     const current = indicationMap.get(event.id) ?? "no_response";
     const currentLabel = indicationLabel(current);
 
     const indicationChoices: Array<{ value: string; name: string }> = [];
-    if (current !== "yes") indicationChoices.push({ value: "yes", name: "Ilmoittaudu — osallistun" });
-    if (current !== "no") indicationChoices.push({ value: "no", name: "En osallistu" });
-    if (current === "yes" || current === "no") indicationChoices.push({ value: "no_response", name: "Peruuta ilmoittautuminen" });
+    if (event.joinable === false) {
+      // Registration closed / match event — can't change indication, only view.
+      console.log(`\n  ${event.registrationClosed ? "Ilmoittautuminen on päättynyt." : "Tähän tapahtumaan ei voi ilmoittautua."}`);
+    } else {
+      if (current !== "yes") indicationChoices.push({ value: "yes", name: "Ilmoittaudu — osallistun" });
+      if (current !== "no") indicationChoices.push({ value: "no", name: "En osallistu" });
+      if (current === "yes" || current === "no") indicationChoices.push({ value: "no_response", name: "Peruuta ilmoittautuminen" });
+    }
     indicationChoices.push({ value: "__messages__", name: "Näytä viestit" });
     indicationChoices.push({ value: "__back__", name: "← Takaisin" });
 

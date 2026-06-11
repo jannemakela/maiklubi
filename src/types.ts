@@ -47,6 +47,8 @@ export interface Event {
   event_category: string;
   starts_at?: string; // local-time ISO: "2026-06-17T15:00:00" (from TklCalendar react-props)
   ends_at?: string;   // local-time ISO: "2026-06-17T16:45:00"
+  joinable?: boolean;           // false once the join widget is gone (deadline passed / match event)
+  registrationClosed?: boolean; // true specifically when "Ilmoittautuminen päättynyt"
 }
 
 export interface EventComment {

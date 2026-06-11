@@ -66,6 +66,8 @@ Options:
   --id <eventId>       Event ID
   --status <status>    Indication: yes|no|no_response|maybe
   --with-participants  Show participants for joined events (events list)
+  --all-events         Show everything, incl. unjoinable events you haven't responded to
+  --joinable-only      Show only events you can still join (drops all unjoinable)
   --limit <n>          Max results (default 20)
   --json               Machine-readable JSON output (for AI agents)
 ```

@@ -62,6 +62,23 @@ export function parseDetailPageIndication(
   return "no_response";
 }
 
+/**
+ * Whether an event can currently be joined (its indication can be changed),
+ * parsed from the event detail page.
+ *
+ * - The join widget renders indication buttons (`data-indication="..."`). When
+ *   the registration deadline has passed myClub removes the buttons and shows
+ *   "Ilmoittautuminen päättynyt"; match-type events never render the buttons.
+ * - `joinable` is true only when the widget is present.
+ * - `registrationClosed` distinguishes "deadline passed" from "never joinable",
+ *   so callers can give an accurate reason.
+ */
+export function parseEventJoinable(html: string): { joinable: boolean; registrationClosed: boolean } {
+  const registrationClosed = /Ilmoittautuminen päättynyt/i.test(html);
+  const hasWidget = /data-indication="/.test(html);
+  return { joinable: hasWidget && !registrationClosed, registrationClosed };
+}
+
 // Parse indication from events list page button HTML (JS DOM updates from the toggle endpoint).
 // On the list page, data-indication shows the NEXT click action (not current state).
 // Current state is determined by button CSS class:

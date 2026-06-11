@@ -8,7 +8,7 @@ Usage:
   maiklubi summary [--days 14] [--member <name>] [--club <name>] [--all-members] [--json]
   maiklubi users list [--json]
   maiklubi accounts list [--json]
-  maiklubi events list [--member <name>] [--club <name>] [--all-members] [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--with-participants] [--json]
+  maiklubi events list [--member <name>] [--club <name>] [--all-members] [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--with-participants] [--all-events | --joinable-only] [--json]
   maiklubi events indicate --member <name> [--club <name>] --id <eventId> --status yes|no|no_response|maybe [--json]
   maiklubi events participants --member <name> [--club <name>] --id <eventId> [--json]
   maiklubi events comments --member <name> [--club <name>] --id <eventId> [--json]
