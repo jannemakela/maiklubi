@@ -1,3 +1,26 @@
+---
+name: maiklubi-myclub
+description: "Access Finnish sports club events, invoices, notifications, and RSVP on myclub.fi for AI agents and parents. Works with myclub and MyClub clubs across Finland."
+metadata:
+  {
+    "openclaw":
+      {
+        "emoji": "⚽",
+        "requires": { "bins": ["maiklubi"] },
+        "install":
+          [
+            {
+              "id": "node",
+              "kind": "node",
+              "package": "maiklubi",
+              "bins": ["maiklubi"],
+              "label": "Install maiklubi CLI (npm)",
+            },
+          ],
+      },
+  }
+---
+
 # maiklubi skill
 
 The maiklubi skill enables AI agents to access Finnish sports club information on myclub.fi. It retrieves upcoming events with RSVP status, open invoices, notifications, event participants, and manages calendar subscriptions for parents and athletes.
