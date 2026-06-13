@@ -15,6 +15,7 @@ import {
   cmdAccounts,
   cmdEventParticipants,
   cmdEventComments,
+  cmdNotificationShow,
   cmdCalendarList,
   cmdCalendarCreate,
   cmdSummary,
@@ -166,6 +167,19 @@ async function handleCommand(argv: string[]) {
     for (const { club } of pairs) {
       await session.selectAccount(club.clubUrl, club.memberId);
       await cmdEventComments(session, club.clubUrl, eventId, flags.json ?? false);
+    }
+    return;
+  }
+
+  if (command === "notifications" && subcommand === "show") {
+    if (!flags.member || !flags.id) {
+      console.error("Usage: maiklubi notifications show --member <name> --club <club> --id <notificationId> [--json]");
+      process.exit(1);
+    }
+    const notificationId = eventIdOrExit(flags.id);
+    for (const { club } of pairs) {
+      await session.selectAccount(club.clubUrl, club.memberId);
+      await cmdNotificationShow(session, club.clubUrl, notificationId, flags.json ?? false);
     }
     return;
   }

@@ -3,6 +3,7 @@ import type {
   EventComment,
   Invoice,
   Notification,
+  NotificationDetail,
   EventParticipant,
   CalendarSubscription,
   Indication,
@@ -16,7 +17,14 @@ function decodeEntities(s: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ")
-    .replace(/&euro;/g, "€");
+    .replace(/&euro;/g, "€")
+    .replace(/&auml;/g, "ä")
+    .replace(/&ouml;/g, "ö")
+    .replace(/&aring;/g, "å")
+    .replace(/&Auml;/g, "Ä")
+    .replace(/&Ouml;/g, "Ö")
+    .replace(/&Aring;/g, "Å")
+    .replace(/&#(\d+);/g, (_m, code) => String.fromCodePoint(Number(code)));
 }
 
 function stripTags(html: string): string {
@@ -282,6 +290,44 @@ export function parseNotifications(html: string): Notification[] {
   return notifications;
 }
 
+
+// Convert a myclub richtext HTML blob to readable plain text, preserving
+// line breaks and inlining link URLs (links carry the useful info here —
+// team pages, WhatsApp groups, schedules).
+function richTextToText(html: string): string {
+  let s = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, text) => {
+      const label = stripTags(text).trim();
+      return !label || label === href ? href : `${label} (${href})`;
+    });
+  s = decodeEntities(stripTags(s));
+  return s
+    .replace(/[ \t]+/g, " ")
+    .replace(/[ \t]*\n[ \t]*/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+export function parseNotificationDetail(html: string): NotificationDetail | null {
+  const titleM = html.match(
+    /<h1[^>]*class="[^"]*notification-subject[^"]*"[^>]*>([\s\S]*?)<\/h1>/i
+  );
+  const tsM = html.match(/<div class="timestamp">([\s\S]*?)<\/div>/i);
+  const senderM = html.match(/<div class="group">([\s\S]*?)<\/div>/i);
+  // The body lives in .notification-content > .richtext. The richtext blob
+  // contains only <p>/<br>/<a>/<strong> (no nested <div>), so a non-greedy
+  // match to the first </div> captures exactly the richtext inner HTML.
+  const richM = html.match(/<div class="richtext[^"]*">([\s\S]*?)<\/div>/i);
+  if (!titleM && !richM) return null;
+  return {
+    title: titleM ? stripTags(decodeEntities(titleM[1])).trim() : "",
+    sender: senderM ? stripTags(decodeEntities(senderM[1])).trim() || undefined : undefined,
+    timestamp: tsM ? stripTags(decodeEntities(tsM[1])).trim() || undefined : undefined,
+    content: richM ? richTextToText(richM[1]) : "",
+  };
+}
 
 export function parseEventParticipants(html: string): EventParticipant[] {
   const participants: EventParticipant[] = [];

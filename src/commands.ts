@@ -154,8 +154,29 @@ export async function cmdNotifications(
   }
   console.log(`\nNotifications — ${label} (${notifications.length}):`);
   for (const n of notifications) {
-    console.log(`  ${n.title}  ${n.url ?? ""}`);
+    console.log(`  [${n.id ?? "?"}] ${n.title}  ${n.url ?? ""}`);
   }
+}
+
+export async function cmdNotificationShow(
+  session: MyClubSession,
+  clubUrl: string,
+  notificationId: number,
+  json: boolean
+) {
+  const n = await session.getNotification(clubUrl, notificationId);
+  if (json) {
+    out({ id: notificationId, clubUrl, notification: n }, true);
+    return;
+  }
+  if (!n) {
+    console.log("\nNotification not found.");
+    return;
+  }
+  console.log(`\n${n.title}`);
+  const meta = [n.sender, n.timestamp].filter(Boolean).join("  ·  ");
+  if (meta) console.log(`  ${meta}`);
+  if (n.content) console.log(`\n${n.content}\n`);
 }
 
 export async function cmdAccounts(session: MyClubSession, json: boolean) {

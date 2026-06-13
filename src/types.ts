@@ -78,6 +78,13 @@ export interface Notification {
   group?: string;
 }
 
+export interface NotificationDetail {
+  title: string;
+  sender?: string;
+  timestamp?: string;
+  content: string;
+}
+
 export interface EventParticipant {
   member_id: number;
   name: string;

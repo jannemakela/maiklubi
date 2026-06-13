@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { parseEventIndication, parseDetailPageIndication, parseEventJoinable, parseIndicationFromToggleJs, parseEventsList, parseEventComments, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl } from "./parsers.js";
+import { parseEventIndication, parseDetailPageIndication, parseEventJoinable, parseIndicationFromToggleJs, parseEventsList, parseEventComments, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl, parseNotificationDetail } from "./parsers.js";
 
 // ─── Shared fixture helper ────────────────────────────────────────────────────
 // Encode a value so it can be embedded as an HTML attribute (data-foo="...").
@@ -560,5 +560,43 @@ describe("parseEventJoinable", () => {
 
   test("event without a join widget is not joinable (not flagged closed)", () => {
     expect(parseEventJoinable(NO_WIDGET_HTML)).toEqual({ joinable: false, registrationClosed: false });
+  });
+});
+
+describe("parseNotificationDetail", () => {
+  const NOTIF_HTML = `
+    <div class="notification-body">
+      <div class="d-flex align-items-center">
+        <div>
+          <div class="timestamp">
+            13.6.2026 18:51
+          </div>
+          <div class="group">
+            PPJ Laru 2018
+          </div>
+        </div>
+        <div class="ml-auto notification-star"><a class="btn fa fa-star-o"></a></div>
+      </div>
+      <h1 class="notification-subject">
+        HELSINKI CUP 2026 Peliryhm&auml;t + Info
+      </h1>
+      <div class="notification-content">
+        <div class="richtext "><p>Peliryhm&auml;t:<br></p><p><strong>PPJ Laru Musta</strong><br></p><p>Tiitus<br></p><p><a href="https://helsinkicup.torneopal.fi/taso/joukkue.php?joukkue=35210108" rel="nofollow" target="_blank">Joukkuesivu</a><br></p></div>
+      </div>
+    </div>`;
+
+  test("extracts title, sender, timestamp, and link-inlined body", () => {
+    const n = parseNotificationDetail(NOTIF_HTML);
+    expect(n).not.toBeNull();
+    expect(n!.title).toBe("HELSINKI CUP 2026 Peliryhmät + Info");
+    expect(n!.sender).toBe("PPJ Laru 2018");
+    expect(n!.timestamp).toBe("13.6.2026 18:51");
+    expect(n!.content).toContain("PPJ Laru Musta");
+    expect(n!.content).toContain("Tiitus");
+    expect(n!.content).toContain("Joukkuesivu (https://helsinkicup.torneopal.fi/taso/joukkue.php?joukkue=35210108)");
+  });
+
+  test("returns null when no notification markup is present", () => {
+    expect(parseNotificationDetail("<html><body>nothing here</body></html>")).toBeNull();
   });
 });

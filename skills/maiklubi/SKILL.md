@@ -69,8 +69,21 @@ maiklubi invoices list --member <name> --club <club> --json
 
 ### Notifications
 ```bash
+# List notifications (returns id, title, url)
 maiklubi notifications list --member <name> --club <club> --limit 10 --json
+
+# Read the FULL TEXT of one notification (body + links), by id from the list
+maiklubi notifications show --member <name> --club <club> --id <notificationId> --json
 ```
+
+**Important — read myclub for myclub questions, not the web.** Club-internal
+information such as **tournament play-groups / team assignments / line-ups**
+(e.g. "which Helsinki Cup team is X in"), match times, kit info, and coach
+announcements are posted as **myclub notifications**, not on public websites.
+To answer these: run `notifications list` to find the relevant item (match by
+title, e.g. one containing "Peliryhmät"/"Helsinki Cup"), then
+`notifications show --id <id>` to read the full text and find the member's name.
+Do NOT use web search for information that lives inside myclub.
 
 ### Calendar subscriptions (webcal / iCalendar)
 ```bash

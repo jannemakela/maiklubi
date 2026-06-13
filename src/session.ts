@@ -1,8 +1,8 @@
 import { CookieJar } from "tough-cookie";
 import { fetch } from "undici";
-import { parseDetailPageIndication, parseIndicationFromToggleJs, parseEventComments, parseEventsList, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl, parseEventJoinable } from "./parsers.js";
+import { parseDetailPageIndication, parseIndicationFromToggleJs, parseEventComments, parseEventsList, parseEventTimeDetails, parseEventParticipants, parseCalendarSubscriptions, parseCalendarSubscriptionUrl, parseEventJoinable, parseNotificationDetail } from "./parsers.js";
 import { INDICATION_BY_ID, ID_BY_INDICATION } from "./types.js";
-import type { Event, EventComment, EventParticipant, CalendarSubscription, Indication } from "./types.js";
+import type { Event, EventComment, EventParticipant, CalendarSubscription, Indication, NotificationDetail } from "./types.js";
 
 const ID_BASE = "https://id.myclub.fi";
 const REQUEST_TIMEOUT_MS = 30_000;
@@ -352,6 +352,11 @@ export class MyClubSession {
   async getEventComments(clubUrl: string, eventId: number): Promise<EventComment[]> {
     const html = await this.fetchPage(`${clubUrl}/flow/events/${eventId}`);
     return parseEventComments(html);
+  }
+
+  async getNotification(clubUrl: string, notificationId: number): Promise<NotificationDetail | null> {
+    const html = await this.fetchPage(`${clubUrl}/flow/notifications/${notificationId}`);
+    return parseNotificationDetail(html);
   }
 
   getLoginId(): string {

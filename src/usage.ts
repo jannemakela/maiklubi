@@ -14,6 +14,7 @@ Usage:
   maiklubi events comments --member <name> [--club <name>] --id <eventId> [--json]
   maiklubi invoices list [--member <name>] [--club <name>] [--all-members] [--json]
   maiklubi notifications list [--member <name>] [--club <name>] [--limit 20] [--all-members] [--json]
+  maiklubi notifications show --member <name> [--club <name>] --id <notificationId> [--json]
   maiklubi calendar list [--json]
   maiklubi calendar create --member <name> [--club <name>] [--indication yes] [--json]
   maiklubi update
