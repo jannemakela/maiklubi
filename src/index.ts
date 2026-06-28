@@ -140,7 +140,7 @@ async function handleCommand(argv: string[]) {
     }
     const eventId = eventIdOrExit(flags.id);
     for (const { member, club } of pairs) {
-      await cmdIndicate(session, member, club, eventId, flags.status, flags.json ?? false);
+      await cmdIndicate(session, member, club, eventId, flags.status, flags.json ?? false, flags.reason);
     }
     return;
   }

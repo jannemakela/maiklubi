@@ -238,12 +238,13 @@ export class MyClubSession {
   private async sendIndicationToggle(
     clubUrl: string,
     eventId: number,
-    param: Indication
+    param: Indication,
+    reason?: string
   ): Promise<Indication> {
     if (param === "no") {
       // "no" (decline) is a two-step: GET /edit?indication=no opens a modal form;
       // the actual state change requires a PATCH to /flow/events/{id} with participation fields.
-      return this.sendDecline(clubUrl, eventId);
+      return this.sendDecline(clubUrl, eventId, reason);
     }
     // For yes / no_response / maybe: GET edit?indication=X sets state directly.
     // Referer must be the events list page (not the detail page) to match browser behavior.
@@ -259,7 +260,8 @@ export class MyClubSession {
 
   private async sendDecline(
     clubUrl: string,
-    eventId: number
+    eventId: number,
+    reason?: string
   ): Promise<"no"> {
     // "no" (decline) requires submitting the modal PATCH form:
     //   POST /flow/events/{id} with _method=patch + participation[indication_id]=3
@@ -268,7 +270,7 @@ export class MyClubSession {
       authenticity_token: this.csrfToken,
       _method: "patch",
       "participation[indication_id]": "3",
-      "participation[comment]": "Muuta ohjelmaa",
+      "participation[comment]": reason ?? "Muuta ohjelmaa",
       details_open: "value ",
       selected_tab: "",
     });
@@ -290,7 +292,8 @@ export class MyClubSession {
   async indicate(
     clubUrl: string,
     eventId: number,
-    targetStatus: Indication
+    targetStatus: Indication,
+    reason?: string
   ): Promise<{ ownParticipation: number; indication: Indication }> {
     const currentStatus = await this.getEventIndication(clubUrl, eventId);
 
@@ -312,7 +315,7 @@ export class MyClubSession {
       );
     }
 
-    await this.sendIndicationToggle(clubUrl, eventId, targetStatus);
+    await this.sendIndicationToggle(clubUrl, eventId, targetStatus, reason);
     // Read back the actual state: the JS response parse is unreliable for some event types
     // (e.g. camp events return different HTML that contains unrelated btn-success elements).
     const newStatus = await this.getEventIndication(clubUrl, eventId);

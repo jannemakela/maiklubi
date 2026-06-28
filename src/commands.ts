@@ -95,12 +95,13 @@ export async function cmdIndicate(
   club: MemberClub,
   eventId: number,
   status: Indication,
-  json: boolean
+  json: boolean,
+  reason?: string
 ) {
   await session.selectAccount(club.clubUrl, club.memberId);
   const before = await session.getEventIndication(club.clubUrl, eventId);
 
-  const result = await session.indicate(club.clubUrl, eventId, status);
+  const result = await session.indicate(club.clubUrl, eventId, status, reason);
 
   if (json) {
     out({ member: member.name, club: club.clubUrl, eventId, before, after: status, ownParticipation: result.ownParticipation }, true);

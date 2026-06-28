@@ -88,3 +88,18 @@ test("parses --start and --end together", () => {
   expect(r.flags.start).toBe("2026-06-01");
   expect(r.flags.end).toBe("2026-06-30");
 });
+
+test("parses --reason flag", () => {
+  const r = parseArgs(["events", "indicate", "--member", "Aino", "--id", "123", "--status", "no", "--reason", "Sairas"]);
+  expect(r.flags.reason).toBe("Sairas");
+});
+
+test("--reason with multi-word value", () => {
+  const r = parseArgs(["events", "indicate", "--status", "no", "--reason", "Meillä on matka"]);
+  expect(r.flags.reason).toBe("Meillä on matka");
+});
+
+test("--reason is undefined when not provided", () => {
+  const r = parseArgs(["events", "indicate", "--status", "no"]);
+  expect(r.flags.reason).toBeUndefined();
+});

@@ -15,6 +15,7 @@ export interface CliFlags {
   days?: number;
   start?: string;
   end?: string;
+  reason?: string;
 }
 
 export interface ParsedArgs {
@@ -63,6 +64,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
     }
     if (arg === "--start" && rest[i + 1]) { flags.start = rest[i + 1]; i += 2; continue; }
     if (arg === "--end" && rest[i + 1]) { flags.end = rest[i + 1]; i += 2; continue; }
+    if (arg === "--reason" && rest[i + 1]) { flags.reason = rest[i + 1]; i += 2; continue; }
     i++;
   }
 
